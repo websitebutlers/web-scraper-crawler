@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Web Scraper{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="text-center">
+        <h1 class="text-3xl font-bold text-gray-900">Web Scraper Dashboard</h1>
+        <p class="mt-2 text-gray-600">Analyze SEO performance and research products with powerful web scraping tools</p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        <div class="stat-card">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-2xl font-bold">{{ total_seo | format_number }}</div>
+                    <div class="text-sm opacity-90">SEO Analyses</div>
+                </div>
+                <div class="text-3xl opacity-75">📊</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-2xl font-bold">{{ total_products | format_number }}</div>
+                    <div class="text-sm opacity-90">Products Scraped</div>
+                </div>
+                <div class="text-3xl opacity-75">🛍️</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-2xl font-bold">{{ total_crawl_sessions | format_number }}</div>
+                    <div class="text-sm opacity-90">Site Crawls</div>
+                </div>
+                <div class="text-3xl opacity-75">🕷️</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-2xl font-bold">{{ pending_jobs | format_number }}</div>
+                    <div class="text-sm opacity-90">Pending Jobs</div>
+                </div>
+                <div class="text-3xl opacity-75">⏳</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- SEO Analysis -->
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <span class="mr-2">🔍</span>
+                Quick SEO Analysis
+            </h2>
+            
+            <form id="seo-form" class="space-y-4">
+                <div>
+                    <label for="seo-url" class="block text-sm font-medium text-gray-700 mb-1">Website URL</label>
+                    <input type="url"
+                           id="seo-url"
+                           name="url"
+                           placeholder="https://example.com"
+                           class="input-field"
+                           required>
+                </div>
+
+                <div class="flex items-center">
+                    <input type="checkbox"
+                           id="seo-ignore-robots"
+                           name="ignore_robots"
+                           class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                    <label for="seo-ignore-robots" class="ml-2 block text-sm text-gray-700">
+                        Ignore robots.txt
+                        <span class="text-gray-500">(for research purposes)</span>
+                    </label>
+                </div>
+
+                <button type="submit"
+                        class="btn-primary w-full"
+                        data-original-text="Analyze SEO">
+                    Analyze SEO
+                </button>
+            </form>
+            
+            <div id="seo-results" class="mt-6"></div>
+        </div>
+
+        <!-- Product Scraping -->
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <span class="mr-2">🛍️</span>
+                Quick Product Scraping
+            </h2>
+            
+            <form id="product-form" class="space-y-4">
+                <div>
+                    <label for="product-url" class="block text-sm font-medium text-gray-700 mb-1">Product URL</label>
+                    <input type="url"
+                           id="product-url"
+                           name="url"
+                           placeholder="https://amazon.com/product/..."
+                           class="input-field"
+                           required>
+                </div>
+
+                <div class="flex items-center">
+                    <input type="checkbox"
+                           id="product-ignore-robots"
+                           name="ignore_robots"
+                           class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                    <label for="product-ignore-robots" class="ml-2 block text-sm text-gray-700">
+                        Ignore robots.txt
+                        <span class="text-gray-500">(for research purposes)</span>
+                    </label>
+                </div>
+
+                <button type="submit"
+                        class="btn-primary w-full"
+                        data-original-text="Scrape Product">
+                    Scrape Product
+                </button>
+            </form>
+            
+            <div id="product-results" class="mt-6"></div>
+        </div>
+
+        <!-- Site Crawler -->
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <span class="mr-2">🕷️</span>
+                Site Crawler
+            </h2>
+
+            <p class="text-sm text-gray-600 mb-4">Crawl entire websites to identify systemic SEO issues</p>
+
+            <div class="space-y-4">
+                <div>
+                    <label for="crawl-url" class="block text-sm font-medium text-gray-700 mb-1">Website URL</label>
+                    <input type="url"
+                           id="crawl-url"
+                           placeholder="https://example.com"
+                           class="input-field">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Max URLs</label>
+                        <select id="crawl-max-urls" class="input-field">
+                            <option value="25">25</option>
+                            <option value="50" selected>50</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Depth</label>
+                        <select id="crawl-depth" class="input-field">
+                            <option value="2" selected>2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('site_crawler') }}" class="btn-primary w-full block text-center">
+                    Go to Site Crawler
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Recent SEO Analyses -->
+        <div class="card">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold">Recent SEO Analyses</h2>
+                <a href="{{ url_for('seo_analysis') }}" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                    View All →
+                </a>
+            </div>
+            
+            {% if recent_seo %}
+                <div class="space-y-3">
+                    {% for analysis in recent_seo %}
+                    <div class="border border-gray-200 rounded-lg p-3">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 truncate">
+                                    {{ analysis.get('title') or 'No title' }}
+                                </p>
+                                <p class="text-xs text-gray-500 truncate">
+                                    {{ analysis.get('url') }}
+                                </p>
+                                <p class="text-xs text-gray-400 mt-1">
+                                    {{ analysis.get('created_at') | format_datetime }}
+                                </p>
+                            </div>
+                            <div class="ml-2 flex-shrink-0">
+                                {% if analysis.get('load_time') %}
+                                <span class="badge badge-success">{{ analysis.get('load_time') }}s</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-8 text-gray-500">
+                    <p>No SEO analyses yet</p>
+                    <p class="text-sm">Start by analyzing a website above</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Recent Product Data -->
+        <div class="card">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold">Recent Product Data</h2>
+                <a href="{{ url_for('product_research') }}" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                    View All →
+                </a>
+            </div>
+            
+            {% if recent_products %}
+                <div class="space-y-3">
+                    {% for product in recent_products %}
+                    <div class="border border-gray-200 rounded-lg p-3">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 truncate">
+                                    {{ product.get('name') or 'Unknown Product' }}
+                                </p>
+                                <p class="text-xs text-gray-500 truncate">
+                                    {{ product.get('url') }}
+                                </p>
+                                <p class="text-xs text-gray-400 mt-1">
+                                    {{ product.get('created_at') | format_datetime }}
+                                </p>
+                            </div>
+                            <div class="ml-2 flex-shrink-0">
+                                {% if product.get('price') %}
+                                <span class="badge badge-success">{{ product.get('price') }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-8 text-gray-500">
+                    <p>No product data yet</p>
+                    <p class="text-sm">Start by scraping a product above</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Features Overview -->
+    <div class="card">
+        <h2 class="text-xl font-semibold mb-4">Features</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div class="text-center p-4 border border-gray-200 rounded-lg">
+                <div class="text-2xl mb-2">📊</div>
+                <h3 class="font-medium text-gray-900">SEO Analysis</h3>
+                <p class="text-sm text-gray-600 mt-1">Analyze meta tags, headers, load times, and more</p>
+            </div>
+
+            <div class="text-center p-4 border border-gray-200 rounded-lg">
+                <div class="text-2xl mb-2">🛍️</div>
+                <h3 class="font-medium text-gray-900">Product Scraping</h3>
+                <p class="text-sm text-gray-600 mt-1">Extract product details, prices, and reviews</p>
+            </div>
+
+            <div class="text-center p-4 border border-gray-200 rounded-lg">
+                <div class="text-2xl mb-2">🕷️</div>
+                <h3 class="font-medium text-gray-900">Site Crawler</h3>
+                <p class="text-sm text-gray-600 mt-1">Crawl entire sites and identify systemic SEO issues</p>
+            </div>
+
+            <div class="text-center p-4 border border-gray-200 rounded-lg">
+                <div class="text-2xl mb-2">📈</div>
+                <h3 class="font-medium text-gray-900">Data Export</h3>
+                <p class="text-sm text-gray-600 mt-1">Export your data in CSV or JSON format</p>
+            </div>
+
+            <div class="text-center p-4 border border-gray-200 rounded-lg">
+                <div class="text-2xl mb-2">⚡</div>
+                <h3 class="font-medium text-gray-900">Fast & Reliable</h3>
+                <p class="text-sm text-gray-600 mt-1">Efficient scraping with error handling</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

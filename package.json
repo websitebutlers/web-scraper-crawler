@@ -1,0 +1,24 @@
+{
+  "name": "web-scraper-crawler",
+  "version": "1.0.0",
+  "description": "Open-source web scraper and SEO crawler with site analysis capabilities",
+  "main": "app.py",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/websitebutlers/web-scraper-crawler.git"
+  },
+  "keywords": ["seo", "web-scraping", "crawler", "analysis", "python", "flask"],
+  "author": "Website Butlers",
+  "license": "MIT",
+  "scripts": {
+    "build-css": "tailwindcss -i ./static/css/input.css -o ./static/css/output.css",
+    "watch-css": "tailwindcss -i ./static/css/input.css -o ./static/css/output.css --watch",
+    "build-css-prod": "tailwindcss -i ./static/css/input.css -o ./static/css/output.css --minify",
+    "dev": "npm run watch-css",
+    "build": "npm run build-css-prod"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.3.0",
+    "@tailwindcss/forms": "^0.5.6"
+  }
+}

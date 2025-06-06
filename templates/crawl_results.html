@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+
+{% block title %}Crawl Results - {{ session.get('base_url') }}{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Crawl Results</h1>
+            <p class="mt-2 text-gray-600">
+                <a href="{{ session.get('base_url') }}" target="_blank" class="text-primary-600 hover:text-primary-700">
+                    {{ session.get('base_url') }}
+                </a>
+                • {{ session.get('started_at') | format_datetime }}
+            </p>
+        </div>
+        
+        <div class="flex space-x-2">
+            <a href="{{ url_for('site_crawler') }}" class="btn-secondary">
+                ← Back to Crawler
+            </a>
+            <button onclick="exportResults('csv')" class="btn-secondary">
+                Export CSV
+            </button>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="stat-card">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-2xl font-bold">{{ summary.total_pages }}</div>
+                    <div class="text-sm opacity-90">Pages Analyzed</div>
+                </div>
+                <div class="text-3xl opacity-75">📄</div>
+            </div>
+        </div>
+        
+        <div class="stat-card {% if summary.total_issues > 0 %}bg-red-500{% else %}bg-green-500{% endif %}">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-2xl font-bold">{{ summary.total_issues }}</div>
+                    <div class="text-sm opacity-90">Total Issues</div>
+                </div>
+                <div class="text-3xl opacity-75">⚠️</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-2xl font-bold">{{ summary.issue_percentage }}%</div>
+                    <div class="text-sm opacity-90">Pages with Issues</div>
+                </div>
+                <div class="text-3xl opacity-75">📊</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-2xl font-bold">{{ summary.avg_issues_per_page }}</div>
+                    <div class="text-sm opacity-90">Avg Issues/Page</div>
+                </div>
+                <div class="text-3xl opacity-75">📈</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Issue Categories -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-4">Issues by Category</h2>
+            <div class="space-y-3">
+                {% for category, count in summary.issue_categories.items() %}
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-700 capitalize">{{ category.replace('_', ' ') }}</span>
+                    <span class="badge badge-error">{{ count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-4">Issues by Severity</h2>
+            <div class="space-y-3">
+                {% for severity, count in summary.issue_severities.items() %}
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-700 capitalize">{{ severity }}</span>
+                    <span class="badge 
+                        {% if severity == 'critical' %}badge-error
+                        {% elif severity == 'high' %}bg-orange-100 text-orange-800
+                        {% elif severity == 'medium' %}badge-warning
+                        {% else %}bg-blue-100 text-blue-800{% endif %}">
+                        {{ count }}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Common Issues -->
+    {% if summary.common_issues %}
+    <div class="card">
+        <h2 class="text-xl font-semibold mb-4">Most Common Issues</h2>
+        <div class="space-y-2">
+            {% for issue, count in summary.common_issues %}
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <span class="text-sm text-gray-700">{{ issue }}</span>
+                <span class="badge badge-error">{{ count }} pages</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Filters -->
+    <div class="card">
+        <h2 class="text-xl font-semibold mb-4">Filter Results</h2>
+        <div class="flex flex-wrap gap-4">
+            <button onclick="filterResults('all')" class="btn-secondary filter-btn active" data-filter="all">
+                All Pages ({{ results|length }})
+            </button>
+            <button onclick="filterResults('issues')" class="btn-secondary filter-btn" data-filter="issues">
+                With Issues ({{ summary.pages_with_issues }})
+            </button>
+            <button onclick="filterResults('no-issues')" class="btn-secondary filter-btn" data-filter="no-issues">
+                No Issues ({{ summary.total_pages - summary.pages_with_issues }})
+            </button>
+            <button onclick="filterResults('critical')" class="btn-secondary filter-btn" data-filter="critical">
+                Critical Issues
+            </button>
+        </div>
+    </div>
+
+    <!-- Results Table -->
+    <div class="card">
+        <h2 class="text-xl font-semibold mb-4">Detailed Results</h2>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200" id="results-table">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            URL
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Title
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Issues
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Load Time
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Words
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Mobile
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for result in results %}
+                    {% set has_critical = false %}
+                    {% for issue in result.get('issues', []) %}
+                        {% if 'missing title' in issue.lower() or 'missing h1' in issue.lower() %}
+                            {% set has_critical = true %}
+                        {% endif %}
+                    {% endfor %}
+                    <tr class="table-row result-row"
+                        data-issues="{{ result.get('issue_count', 0) }}"
+                        data-has-critical="{{ 'true' if has_critical else 'false' }}">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 truncate max-w-xs">
+                                <a href="{{ result.get('url') }}" target="_blank" class="text-primary-600 hover:text-primary-700">
+                                    {{ result.get('url') | truncate_text(50) }}
+                                </a>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 truncate max-w-xs">
+                                {% if result.get('title') %}
+                                    {{ result.get('title') | truncate_text(40) }}
+                                {% else %}
+                                    <span class="text-red-500 italic">No title</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% set issue_count = result.get('issue_count', 0) %}
+                            {% if issue_count > 0 %}
+                                <div class="group relative">
+                                    <span class="badge badge-error cursor-help">{{ issue_count }} issues</span>
+                                    <div class="absolute bottom-full left-0 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded p-2 whitespace-nowrap z-10">
+                                        {% for issue in result.get('issues', [])[:3] %}
+                                            <div>• {{ issue | truncate_text(50) }}</div>
+                                        {% endfor %}
+                                        {% if result.get('issues', [])|length > 3 %}
+                                            <div>• ... and {{ result.get('issues', [])|length - 3 }} more</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% else %}
+                                <span class="badge badge-success">No issues</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {% if result.get('load_time') %}
+                                <span class="{% if result.get('load_time') > 3 %}text-red-600{% elif result.get('load_time') > 2 %}text-yellow-600{% else %}text-green-600{% endif %}">
+                                    {{ result.get('load_time') }}s
+                                </span>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ result.get('word_count', 0) | format_number }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <span class="badge {% if result.get('mobile_friendly') %}badge-success{% else %}badge-error{% endif %}">
+                                {% if result.get('mobile_friendly') %}Yes{% else %}No{% endif %}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterResults(filter) {
+    const rows = document.querySelectorAll('.result-row');
+    const buttons = document.querySelectorAll('.filter-btn');
+    
+    // Update button states
+    buttons.forEach(btn => btn.classList.remove('active', 'bg-primary-600', 'text-white'));
+    document.querySelector(`[data-filter="${filter}"]`).classList.add('active', 'bg-primary-600', 'text-white');
+    
+    // Filter rows
+    rows.forEach(row => {
+        const issues = parseInt(row.dataset.issues);
+        const hasCritical = row.dataset.hasCritical === 'true';
+        let show = false;
+        
+        switch(filter) {
+            case 'all':
+                show = true;
+                break;
+            case 'issues':
+                show = issues > 0;
+                break;
+            case 'no-issues':
+                show = issues === 0;
+                break;
+            case 'critical':
+                show = hasCritical;
+                break;
+        }
+        
+        row.style.display = show ? '' : 'none';
+    });
+}
+
+function exportResults(format) {
+    const sessionId = '{{ session.get("id") }}';
+    window.open(`/api/export/crawl-results/${sessionId}?format=${format}`, '_blank');
+}
+
+// Initialize with all results shown
+document.addEventListener('DOMContentLoaded', function() {
+    filterResults('all');
+});
+</script>
+{% endblock %}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Web Scraper - SEO & Product Research{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+    
+    {% block head %}{% endblock %}
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="{{ url_for('index') }}" class="flex items-center space-x-2">
+                        <span class="text-2xl">🔍</span>
+                        <span class="text-xl font-bold text-gray-900">Web Scraper</span>
+                    </a>
+                </div>
+                
+                <div class="flex items-center space-x-8">
+                    <a href="{{ url_for('index') }}" 
+                       class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors
+                              {% if request.endpoint == 'index' %}text-primary-600 bg-primary-50{% endif %}">
+                        Dashboard
+                    </a>
+                    <a href="{{ url_for('seo_analysis') }}" 
+                       class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors
+                              {% if request.endpoint == 'seo_analysis' %}text-primary-600 bg-primary-50{% endif %}">
+                        SEO Analysis
+                    </a>
+                    <a href="{{ url_for('product_research') }}"
+                       class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors
+                              {% if request.endpoint == 'product_research' %}text-primary-600 bg-primary-50{% endif %}">
+                        Product Research
+                    </a>
+                    <a href="{{ url_for('site_crawler') }}"
+                       class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors
+                              {% if request.endpoint == 'site_crawler' %}text-primary-600 bg-primary-50{% endif %}">
+                        Site Crawler
+                    </a>
+                    <a href="{{ url_for('test_page') }}"
+                       class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors
+                              {% if request.endpoint == 'test_page' %}text-primary-600 bg-primary-50{% endif %}">
+                        Test URLs
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <div class="text-center text-gray-500 text-sm">
+                <p>&copy; 2024 Web Scraper. Built with Flask and Tailwind CSS for SEO and Product Research.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

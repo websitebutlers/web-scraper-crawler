@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Product Research - Web Scraper{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Product Research</h1>
+            <p class="mt-2 text-gray-600">Scrape and analyze product data from e-commerce websites</p>
+        </div>
+        
+        <div class="flex space-x-2">
+            <button data-export="products" data-format="csv" class="btn-secondary">
+                Export CSV
+            </button>
+            <button data-export="products" data-format="json" class="btn-secondary">
+                Export JSON
+            </button>
+        </div>
+    </div>
+
+    <!-- Scraping Form -->
+    <div class="card">
+        <h2 class="text-xl font-semibold mb-4">Scrape New Product</h2>
+        
+        <form id="product-form" class="space-y-4">
+            <div class="flex space-x-4">
+                <div class="flex-1">
+                    <input type="url"
+                           name="url"
+                           placeholder="https://amazon.com/product/..."
+                           class="input-field"
+                           required>
+                </div>
+                <button type="submit"
+                        class="btn-primary"
+                        data-original-text="Scrape">
+                    Scrape
+                </button>
+            </div>
+
+            <div class="flex items-center">
+                <input type="checkbox"
+                       name="ignore_robots"
+                       class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                <label class="ml-2 block text-sm text-gray-700">
+                    Ignore robots.txt
+                    <span class="text-gray-500">(for research purposes)</span>
+                </label>
+            </div>
+        </form>
+        
+        <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+            <h3 class="text-sm font-medium text-blue-900 mb-2">Supported Sites:</h3>
+            <div class="text-sm text-blue-700 space-y-1">
+                <p>• <strong>Amazon:</strong> Product name, price, description, rating, reviews</p>
+                <p>• <strong>eBay:</strong> Product name, price, description, availability</p>
+                <p>• <strong>Generic sites:</strong> Basic product information using common selectors</p>
+            </div>
+        </div>
+        
+        <div id="product-results" class="mt-6"></div>
+    </div>
+
+    <!-- Results Table -->
+    <div class="card">
+        <h2 class="text-xl font-semibold mb-4">Product Data</h2>
+        
+        {% if products %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Product
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Price
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Brand
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Rating
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Availability
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Date
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for product in products %}
+                    <tr class="table-row">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex flex-col">
+                                <div class="text-sm font-medium text-gray-900 truncate max-w-xs">
+                                    {{ product.get('name') | truncate_text(40) or 'Unknown Product' }}
+                                </div>
+                                <div class="text-xs text-gray-500 truncate max-w-xs">
+                                    <a href="{{ product.get('url') }}" target="_blank" class="text-primary-600 hover:text-primary-700">
+                                        {{ product.get('url') | truncate_text(50) }}
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if product.get('price') %}
+                                <span class="text-sm font-semibold text-green-600">{{ product.get('price') }}</span>
+                            {% else %}
+                                <span class="text-sm text-gray-400">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ product.get('brand') | truncate_text(20) or 'N/A' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {% if product.get('rating') %}
+                                <div class="flex items-center">
+                                    <span class="text-yellow-400">★</span>
+                                    <span class="ml-1">{{ product.get('rating') }}/5</span>
+                                    {% if product.get('reviews_count') %}
+                                        <span class="text-xs text-gray-500 ml-1">({{ product.get('reviews_count') | format_number }})</span>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if product.get('availability') %}
+                                <span class="badge badge-success">{{ product.get('availability') | truncate_text(15) }}</span>
+                            {% else %}
+                                <span class="badge badge-warning">Unknown</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ product.get('created_at') | format_datetime }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <div class="text-6xl mb-4">🛍️</div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No product data yet</h3>
+            <p class="text-gray-600 mb-4">Start by scraping your first product above</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Tips -->
+    <div class="card bg-gray-50">
+        <h2 class="text-lg font-semibold mb-3">💡 Tips for Better Results</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+            <div>
+                <h3 class="font-medium mb-2">Amazon Products:</h3>
+                <ul class="space-y-1 list-disc list-inside">
+                    <li>Use direct product URLs for best results</li>
+                    <li>Avoid URLs with search parameters</li>
+                    <li>Works best with individual product pages</li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="font-medium mb-2">General Tips:</h3>
+                <ul class="space-y-1 list-disc list-inside">
+                    <li>Some sites may block automated requests</li>
+                    <li>Results may vary based on site structure</li>
+                    <li>Export data regularly for backup</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

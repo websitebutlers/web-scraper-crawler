@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}SEO Analysis - Web Scraper{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">SEO Analysis</h1>
+            <p class="mt-2 text-gray-600">Analyze website SEO performance and optimization opportunities</p>
+        </div>
+        
+        <div class="flex space-x-2">
+            <button data-export="seo" data-format="csv" class="btn-secondary">
+                Export CSV
+            </button>
+            <button data-export="seo" data-format="json" class="btn-secondary">
+                Export JSON
+            </button>
+        </div>
+    </div>
+
+    <!-- Analysis Form -->
+    <div class="card">
+        <h2 class="text-xl font-semibold mb-4">Analyze New Website</h2>
+        
+        <form id="seo-form" class="space-y-4">
+            <div class="flex space-x-4">
+                <div class="flex-1">
+                    <input type="url"
+                           name="url"
+                           placeholder="https://example.com"
+                           class="input-field"
+                           required>
+                </div>
+                <button type="submit"
+                        class="btn-primary"
+                        data-original-text="Analyze">
+                    Analyze
+                </button>
+            </div>
+
+            <div class="flex items-center">
+                <input type="checkbox"
+                       name="ignore_robots"
+                       class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                <label class="ml-2 block text-sm text-gray-700">
+                    Ignore robots.txt
+                    <span class="text-gray-500">(for research purposes)</span>
+                </label>
+            </div>
+        </form>
+        
+        <div id="seo-results" class="mt-6"></div>
+    </div>
+
+    <!-- Results Table -->
+    <div class="card">
+        <h2 class="text-xl font-semibold mb-4">Analysis History</h2>
+        
+        {% if analyses %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Website
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Title
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Words
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Load Time
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Mobile
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Date
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for analysis in analyses %}
+                    <tr class="table-row">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 truncate max-w-xs">
+                                <a href="{{ analysis.get('url') }}" target="_blank" class="text-primary-600 hover:text-primary-700">
+                                    {{ analysis.get('url') }}
+                                </a>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 truncate max-w-xs">
+                                {{ analysis.get('title') | truncate_text(50) or 'No title' }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ analysis.get('word_count') | format_number }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {% if analysis.get('load_time') %}
+                                <span class="badge {% if analysis.get('load_time') <= 2 %}badge-success{% elif analysis.get('load_time') <= 4 %}badge-warning{% else %}badge-error{% endif %}">
+                                    {{ analysis.get('load_time') }}s
+                                </span>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <span class="badge {% if analysis.get('mobile_friendly') %}badge-success{% else %}badge-error{% endif %}">
+                                {% if analysis.get('mobile_friendly') %}Yes{% else %}No{% endif %}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ analysis.get('created_at') | format_datetime }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <div class="text-6xl mb-4">📊</div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No SEO analyses yet</h3>
+            <p class="text-gray-600 mb-4">Start by analyzing your first website above</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

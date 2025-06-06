@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}Test URLs - Web Scraper{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">Test URLs</h1>
+        <p class="mt-2 text-gray-600">Test the scraper with these known working URLs</p>
+    </div>
+
+    <!-- SEO Test URLs -->
+    <div class="card">
+        <h2 class="text-xl font-semibold mb-4">🔍 SEO Analysis Test URLs</h2>
+        <p class="text-sm text-gray-600 mb-4">These URLs are known to work well for SEO analysis:</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h3 class="font-medium text-gray-900 mb-2">Example.com</h3>
+                <p class="text-sm text-gray-600 mb-3">Simple test page with basic HTML structure</p>
+                <div class="flex space-x-2">
+                    <input type="text" value="https://example.com" readonly class="input-field text-sm flex-1">
+                    <button onclick="testSeoUrl('https://example.com', document.getElementById('global-ignore-robots').checked)" class="btn-primary text-sm">Test</button>
+                </div>
+            </div>
+            
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h3 class="font-medium text-gray-900 mb-2">HTTPBin HTML</h3>
+                <p class="text-sm text-gray-600 mb-3">Test page with rich content and headers</p>
+                <div class="flex space-x-2">
+                    <input type="text" value="https://httpbin.org/html" readonly class="input-field text-sm flex-1">
+                    <button onclick="testSeoUrl('https://httpbin.org/html', document.getElementById('global-ignore-robots').checked)" class="btn-primary text-sm">Test</button>
+                </div>
+            </div>
+
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h3 class="font-medium text-gray-900 mb-2">Python.org</h3>
+                <p class="text-sm text-gray-600 mb-3">Real website with good SEO structure</p>
+                <div class="flex space-x-2">
+                    <input type="text" value="https://www.python.org" readonly class="input-field text-sm flex-1">
+                    <button onclick="testSeoUrl('https://www.python.org', document.getElementById('global-ignore-robots').checked)" class="btn-primary text-sm">Test</button>
+                </div>
+            </div>
+
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h3 class="font-medium text-gray-900 mb-2">GitHub</h3>
+                <p class="text-sm text-gray-600 mb-3">Popular site with modern SEO practices</p>
+                <div class="flex space-x-2">
+                    <input type="text" value="https://github.com" readonly class="input-field text-sm flex-1">
+                    <button onclick="testSeoUrl('https://github.com', document.getElementById('global-ignore-robots').checked)" class="btn-primary text-sm">Test</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Test URLs -->
+    <div class="card">
+        <h2 class="text-xl font-semibold mb-4">🛍️ Product Scraping Test URLs</h2>
+        <p class="text-sm text-gray-600 mb-4">Note: Many e-commerce sites block automated requests, so results may vary:</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h3 class="font-medium text-gray-900 mb-2">Test HTML Page</h3>
+                <p class="text-sm text-gray-600 mb-3">Generic scraper test (will show limited data)</p>
+                <div class="flex space-x-2">
+                    <input type="text" value="https://httpbin.org/html" readonly class="input-field text-sm flex-1">
+                    <button onclick="testProductUrl('https://httpbin.org/html', document.getElementById('global-ignore-robots').checked)" class="btn-primary text-sm">Test</button>
+                </div>
+            </div>
+
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h3 class="font-medium text-gray-900 mb-2">Example.com</h3>
+                <p class="text-sm text-gray-600 mb-3">Basic test (limited product data expected)</p>
+                <div class="flex space-x-2">
+                    <input type="text" value="https://example.com" readonly class="input-field text-sm flex-1">
+                    <button onclick="testProductUrl('https://example.com', document.getElementById('global-ignore-robots').checked)" class="btn-primary text-sm">Test</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4 p-4 bg-yellow-50 rounded-lg">
+            <h4 class="font-medium text-yellow-800 mb-2">⚠️ Important Notes:</h4>
+            <ul class="text-sm text-yellow-700 space-y-1">
+                <li>• Amazon, eBay, and most e-commerce sites actively block automated scraping</li>
+                <li>• This is normal behavior and not a bug in the scraper</li>
+                <li>• The scraper will still work but may return limited data</li>
+                <li>• For production use, consider using official APIs when available</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Global Settings -->
+    <div class="card bg-gray-50">
+        <h2 class="text-lg font-semibold mb-3">⚙️ Test Settings</h2>
+        <div class="flex items-center">
+            <input type="checkbox"
+                   id="global-ignore-robots"
+                   class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+            <label for="global-ignore-robots" class="ml-2 block text-sm text-gray-700">
+                Ignore robots.txt for all tests
+                <span class="text-gray-500">(for research purposes)</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Results Area -->
+    <div class="card">
+        <h2 class="text-xl font-semibold mb-4">Test Results</h2>
+        <div id="test-results" class="min-h-32">
+            <div class="text-center py-8 text-gray-500">
+                <p>Click a test button above to see results here</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Troubleshooting -->
+    <div class="card bg-blue-50">
+        <h2 class="text-lg font-semibold mb-3 text-blue-900">🔧 Troubleshooting</h2>
+        <div class="text-sm text-blue-800 space-y-2">
+            <p><strong>If you get "Analysis failed":</strong></p>
+            <ul class="list-disc list-inside ml-4 space-y-1">
+                <li>Check your internet connection</li>
+                <li>Try a different URL from the test list above</li>
+                <li>Some websites block automated requests (this is normal)</li>
+                <li>Make sure the URL is valid and accessible</li>
+            </ul>
+            
+            <p class="mt-4"><strong>Common working URL patterns:</strong></p>
+            <ul class="list-disc list-inside ml-4 space-y-1">
+                <li>Simple websites: example.com, httpbin.org</li>
+                <li>Documentation sites: python.org, github.com</li>
+                <li>News sites: many work well</li>
+                <li>Personal blogs and portfolios</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+async function testSeoUrl(url, ignoreRobots = false) {
+    const resultsDiv = document.getElementById('test-results');
+    resultsDiv.innerHTML = '<div class="text-center py-4"><div class="loading-spinner mx-auto"></div><p class="mt-2 text-gray-600">Testing SEO analysis...</p></div>';
+
+    try {
+        const response = await fetch('/api/analyze-seo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                url: url,
+                respect_robots: !ignoreRobots
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            resultsDiv.innerHTML = `
+                <div class="border border-green-200 bg-green-50 rounded-lg p-4">
+                    <h3 class="text-green-800 font-medium mb-2">✅ SEO Analysis Successful</h3>
+                    <div class="text-sm text-green-700 space-y-1">
+                        <p><strong>URL:</strong> ${data.data.url}</p>
+                        <p><strong>Title:</strong> ${data.data.title || 'No title'}</p>
+                        <p><strong>SEO Score:</strong> ${data.data.seo_score || 0}/100</p>
+                        <p><strong>Load Time:</strong> ${data.data.load_time || 0}s</p>
+                        <p><strong>Word Count:</strong> ${data.data.word_count || 0}</p>
+                        <p><strong>Mobile Friendly:</strong> ${data.data.mobile_friendly ? 'Yes' : 'No'}</p>
+                    </div>
+                </div>
+            `;
+        } else {
+            throw new Error(data.error || 'Analysis failed');
+        }
+    } catch (error) {
+        resultsDiv.innerHTML = `
+            <div class="border border-red-200 bg-red-50 rounded-lg p-4">
+                <h3 class="text-red-800 font-medium mb-2">❌ SEO Analysis Failed</h3>
+                <p class="text-sm text-red-700">${error.message}</p>
+            </div>
+        `;
+    }
+}
+
+async function testProductUrl(url, ignoreRobots = false) {
+    const resultsDiv = document.getElementById('test-results');
+    resultsDiv.innerHTML = '<div class="text-center py-4"><div class="loading-spinner mx-auto"></div><p class="mt-2 text-gray-600">Testing product scraping...</p></div>';
+
+    try {
+        const response = await fetch('/api/scrape-product', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                url: url,
+                respect_robots: !ignoreRobots
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            resultsDiv.innerHTML = `
+                <div class="border border-green-200 bg-green-50 rounded-lg p-4">
+                    <h3 class="text-green-800 font-medium mb-2">✅ Product Scraping Successful</h3>
+                    <div class="text-sm text-green-700 space-y-1">
+                        <p><strong>URL:</strong> ${data.data.url}</p>
+                        <p><strong>Name:</strong> ${data.data.name || 'Not found'}</p>
+                        <p><strong>Price:</strong> ${data.data.price || 'Not found'}</p>
+                        <p><strong>Brand:</strong> ${data.data.brand || 'Not found'}</p>
+                        <p><strong>Rating:</strong> ${data.data.rating || 'Not found'}</p>
+                        <p><strong>Availability:</strong> ${data.data.availability || 'Not found'}</p>
+                    </div>
+                    ${!data.data.name && !data.data.price ? '<p class="text-xs text-green-600 mt-2">Note: Limited data is normal for non-product pages</p>' : ''}
+                </div>
+            `;
+        } else {
+            throw new Error(data.error || 'Scraping failed');
+        }
+    } catch (error) {
+        resultsDiv.innerHTML = `
+            <div class="border border-red-200 bg-red-50 rounded-lg p-4">
+                <h3 class="text-red-800 font-medium mb-2">❌ Product Scraping Failed</h3>
+                <p class="text-sm text-red-700">${error.message}</p>
+            </div>
+        `;
+    }
+}
+</script>
+{% endblock %}
