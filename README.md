@@ -7,7 +7,9 @@
 
 A powerful, open-source web scraping and SEO analysis tool with comprehensive site crawling capabilities. Perfect for SEO professionals, developers, and researchers who need detailed website analysis and competitive research tools.
 
-![Web Scraper Dashboard](https://via.placeholder.com/800x400/3B82F6/FFFFFF?text=Web+Scraper+Dashboard)
+![Web Scraper Dashboard](assets/images/dashboard-screenshot.png)
+
+> **Dashboard Overview**: The main interface showing SEO analysis, product scraping, and site crawler tools with real-time statistics and recent activity.
 
 ## ✨ Features
 
@@ -72,23 +74,51 @@ Open your browser and navigate to `http://localhost:5000`
 
 ## 📖 Usage
 
-### SEO Analysis
-1. Navigate to **SEO Analysis**
-2. Enter a website URL
-3. Click **"Analyze"** to get comprehensive SEO insights
-4. View detailed results including performance metrics and recommendations
+### 🏠 Dashboard
+The main dashboard provides an overview of your scraping activities:
+- **Statistics Cards**: View counts of SEO analyses, products scraped, site crawls, and pending jobs
+- **Quick Actions**: Rapid access to SEO analysis, product scraping, and site crawler
+- **Recent Activity**: See your latest analyses and scraped data
 
-### Site Crawler
+### 🔍 SEO Analysis
+1. Navigate to **SEO Analysis**
+2. Enter a website URL (e.g., `https://example.com`)
+3. Choose whether to respect robots.txt (default: yes)
+4. Click **"Analyze SEO"** to get comprehensive insights
+5. View detailed results including:
+   - SEO score and performance metrics
+   - Meta tags analysis (title, description)
+   - Header structure (H1, H2 tags)
+   - Page load time and word count
+   - Mobile-friendly status
+   - Identified SEO issues with recommendations
+
+### 🕷️ Site Crawler
 1. Go to **Site Crawler**
 2. Enter a website URL
-3. Configure crawl settings (max URLs, depth)
-4. Start crawl to analyze entire websites
-5. View systemic issues and export results
+3. Configure crawl settings:
+   - **Max URLs**: Limit the number of pages to crawl (up to 200)
+   - **Max Depth**: Control how deep to crawl from the starting page
+   - **Robots.txt**: Choose whether to respect robots.txt
+4. Click **"Start Crawl"** to begin site analysis
+5. Monitor progress and view results:
+   - Systemic SEO issues across the site
+   - Page-by-page analysis with filtering options
+   - Export results in CSV or JSON format
 
-### Product Research
+### 🛍️ Product Research
 1. Visit **Product Research**
-2. Enter product URLs from Amazon, eBay, or other e-commerce sites
-3. Extract detailed product information including prices and reviews
+2. Enter product URLs from supported platforms:
+   - **Amazon**: `https://amazon.com/dp/PRODUCT_ID`
+   - **eBay**: `https://ebay.com/itm/ITEM_ID`
+   - **Other e-commerce sites**: Generic product pages
+3. Choose robots.txt compliance settings
+4. Click **"Scrape Product"** to extract data
+5. View extracted information:
+   - Product name, description, and specifications
+   - Current price and availability status
+   - Brand and category information
+   - Customer ratings and review counts
 
 ## 🔧 API Usage
 
